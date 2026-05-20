@@ -33,7 +33,7 @@ export default class MyInstantsPlugin {
                         <form action="api/plugins/myinstants/play" method="post" data-asyncSubmit>
                             <small>Find and play button from <a href="https://myinstants.com" target="_blank">myinstants.com</a></small><br>
                             <input type="text" name="name">
-                            <input type="submit" value="Play">
+                            <input type="submit" value="Queue">
                         </form>
                     </fieldset>`
                 );
