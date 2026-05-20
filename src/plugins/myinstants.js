@@ -58,17 +58,31 @@ export default class MyInstantsPlugin {
             throw new Error("Bad response status: " + response.status);
 
         let body = await response.text();
-        let search_regex = /<button class="small-button" onclick="play\('([\w./\-%]*)'\s*,\s*'[^']+'\s*,\s*'([^']+)'/g;
+        
+        // YENİ SİSTEM: Sesi (yolu), kendi orijinal sayfa linkini ve butondaki GERÇEK ismini HTML'den aynı anda kazar.
+        let search_regex = /<button [^>]*class="[^"]*small-button[^"]*"[^>]*play\('([^']+)'[\s\S]{1,300}?<a [^>]*href="([^"]+)"[^>]*>([^<]+)<\/a>/ig;
+        
         let regex_result;
         for(let i = 0; i < number; i++){
             regex_result = search_regex.exec(body);
         }
-        if(regex_result == null)
+        
+        if(regex_result == null){
             throw new Error("No instant found.");
-        let [, instantPath, instantId] = regex_result;
+        }
+            
+        let instantPath = regex_result[1];      // Ses dosyasının URL'si (Örn: /media/sounds/bruh.mp3)
+        let instantUrl = regex_result[2];       // Sitedeki sayfa linki
+        let instantName = regex_result[3].trim(); // Sitedeki orijinal Buton İsmi!
 
-        // GÜNCELLENDİ: Sesi direkt çalmak yerine kuyruğa (queue) ekliyoruz
-        await this.apiGW.addToQueue("https://www.myinstants.com" + instantPath);
-        return `https://www.myinstants.com/en/instant/${instantId}/`;
+        // HTML özel karakterlerini düzelt (Örn: &amp; işaretini & harfine çevir)
+        instantName = instantName.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+
+        // Emojili ve sitedeki GERÇEK ismiyle kuyruğa aslanlar gibi ekle
+        await this.apiGW.addToQueue("https://www.myinstants.com" + instantPath, "⚡ " + instantName);
+        
+        // Chat tarafına (olur da Steam üstünden komut girilirse) tıklanabilir link yolla
+        let fullUrl = instantUrl.startsWith("http") ? instantUrl : "https://www.myinstants.com" + instantUrl;
+        return fullUrl;
     }
 }

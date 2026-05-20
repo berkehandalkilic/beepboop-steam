@@ -26,11 +26,9 @@ const startMessage =
 
 export default class BeepBoop {
     constructor(){
-        // --- KUYRUK VE GEÇMİŞ DEĞİŞKENLERİ ---
         this.musicQueue = [];
-        this.historyQueue = []; // Önceki şarkıların tutulacağı hafıza
+        this.historyQueue = []; 
         this.isPlaying = false;
-        // -------------------------------------
 
         /** @type {Config} */
         this.config = config;
@@ -43,7 +41,7 @@ export default class BeepBoop {
             case "client":
                 this.steamClient = new SteamClientApi();
                 break;
-            case "web":
+                case "web":
                 this.steamBrowser = new SteamBrowserApi(this);
                 break;
             default:
@@ -54,11 +52,28 @@ export default class BeepBoop {
         this.plugins = [];
     }
 
-    async addToQueue(url) {
-        let title = "URL Track";
-        if (url.includes("youtube.com") || url.includes("youtu.be")) {
-            let videoId = url.split("v=")[1]?.substring(0, 11) || "YouTube Video";
-            title = "YouTube: " + videoId;
+    async addToQueue(url, providedTitle = null) {
+        let title = providedTitle;
+
+        if (!title) {
+            if (url.includes("youtube.com") || url.includes("youtu.be")) {
+                try {
+                    let res = await utils.request(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+                    let data = JSON.parse(res.body.toString());
+                    title = "▶ " + data.title;
+                } catch(e) {
+                    let videoId = url.split("v=")[1]?.substring(0, 11) || "YouTube Video";
+                    title = "▶ YouTube: " + videoId;
+                }
+            } else if (url.includes("myinstants.com")) {
+                let parts = url.split("/").filter(p => p);
+                title = "⚡ " + (parts[parts.length - 1]).replace(/-/g, ' ');
+            } else if (url.includes("/api/sounds/")) {
+                let parts = url.split("/");
+                title = "🔊 " + decodeURIComponent(parts[parts.length - 1]);
+            } else {
+                title = "🎵 URL Track";
+            }
         }
 
         this.musicQueue.push({ url: url, title: title, status: 'waiting' });
@@ -71,6 +86,8 @@ export default class BeepBoop {
     async playNextInQueue() {
         if (this.musicQueue.length === 0) {
             this.isPlaying = false;
+            // CRITICAL BUG FIX: Son şarkı geçildiğinde ve sırada şarkı kalmadığında çalmaya devam eden sesi zorla susturuyoruz.
+            await this.steamChatAudio.stopSound().catch(console.error);
             return;
         }
 
@@ -127,7 +144,7 @@ export default class BeepBoop {
                 console.warn("Missing steam.groupName or steam.channelName, got nowhere to join.");
             }
         } catch (error) {
-            console.error("Steam kanala bağlanırken hata oluştu (Arayüz hala yüklenmemiş olabilir):", error);
+            console.error("Steam kanala bağlanırken hata oluştu:", error);
         }
     }
 
@@ -136,17 +153,11 @@ export default class BeepBoop {
         await this.steamBrowser?.browser.close();
     }
 
-    /**
-     * @returns {import("puppeteer-core/lib/cjs/puppeteer/api/Page.js").Page | import("puppeteer-core/lib/cjs/puppeteer/api/Frame.js").Frame | undefined}
-     */
     get chatFrame(){
-        //@ts-ignore my head hurts...
+        //@ts-ignore
         return this.steamClient?.getFriendsUiFrame() || this.steamBrowser?.getFriendsUiFrame();
     }
 
-    /**
-     * @returns {import("puppeteer-core/lib/cjs/puppeteer/api/Page.js").Page | undefined}
-     */
     get chatPage(){
         //@ts-ignore
         return this.steamClient?.getFriendsUiPage() || this.steamBrowser?.getFriendsUiPage();

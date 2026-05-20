@@ -254,7 +254,9 @@ export default class WebApp {
         });
 
         this.expressApp.post("/api/sounds/:soundName/play", async (req, res) => {
-            await beepboop.steamChatAudio.playSoundUrl("http://localhost:" + this.port + "/api/sounds/" + req.params.soundName);
+            // YENİ HALİ: Efendi gibi kuyruğa dahil ediyoruz
+            let soundUrl = "http://localhost:" + this.port + "/api/sounds/" + req.params.soundName;
+            await beepboop.addToQueue(soundUrl, "🔊 " + req.params.soundName);
             res.end();
         });
 

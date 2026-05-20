@@ -47,13 +47,13 @@ export default class SteamChatAudio {
             let fakeAudio = {
                 audioContext: new AudioContext(),
                 audio: new Audio(),
-                currentSource: null // YENİ EKLENDİ: Eski sesi hafızada tutmak için
+                currentSource: null // Eski ses düğümünü hafızada tutmak için
             };
             fakeAudio.gainNode = fakeAudio.audioContext.createGain();
             fakeAudio.gainNode.gain.value = volume_;
 
             fakeAudio.addStream = function(stream){
-                // YENİ EKLENDİ: Eğer mikrofonda takılı eski bir şarkı varsa önce onu sök (disconnect)
+                // Eski ses akışı kablosunu sökerek hafıza sızıntısını (stuttering) önler
                 if (fakeAudio.currentSource) {
                     fakeAudio.currentSource.disconnect();
                 }
@@ -159,7 +159,8 @@ export default class SteamChatAudio {
     async textToSpeech(text){
         if(this.bb.config.ttsUrl){
             text = text.replace("/me", this.bb.steamChat.myName);
-            await this.bb.steamChatAudio.playSoundUrl(this.bb.config.ttsUrl + encodeURIComponent(text));
+            // TTS seslerini de sıraya emojili ve korumalı şekilde ekler
+            await this.bb.addToQueue(this.bb.config.ttsUrl + encodeURIComponent(text), "💬 " + text);
         }
     }
 }
