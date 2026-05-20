@@ -4,8 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.client
-      shm_size: '500mb'
-    shm_size: '500mb'
+      shm_size: '1gb'
+    shm_size: '1gb'
     ports:
       - 127.0.0.1:5900:5900 # VNC LAN only
       - 3001:8081 # Node web server
@@ -20,7 +20,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 2G
     healthcheck:
       test: "exit 0"
       

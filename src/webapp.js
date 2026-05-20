@@ -63,7 +63,6 @@ export default class WebApp {
             res.end();
         });
 
-        // Proxy endpoint used to add Access-Control-Allow-Origin header to sound requests.
         this.expressApp.get("/api/proxy/:url", async (req, res) => {
             if(!["172.0.0.1", "::1", "::ffff:127.0.0.1"].includes(req.socket.remoteAddress || ""))
                 return res.status(403).send("Nope").end();
@@ -142,23 +141,18 @@ export default class WebApp {
      */
     startRestApi(beepboop){
 
-        // 1. Kuyruktaki şarkıları arayüze gönder
         this.expressApp.get("/api/queue", (req, res) => {
             res.json(beepboop.musicQueue || []);
             res.end();
         });
 
-        // 2. Kuyruğu tamamen temizle
         this.expressApp.delete("/api/queue", (req, res) => {
-            if (beepboop.musicQueue) {
-                beepboop.musicQueue = [];
-            }
+            if (beepboop.musicQueue) beepboop.musicQueue = [];
             beepboop.isPlaying = false;
-            beepboop.steamChatAudio.stopSound().catch(console.error); // Müziği direkt sustur
+            beepboop.steamChatAudio.stopSound().catch(console.error); 
             res.status(200).end();
         });
 
-        // 3. (GÜNCELLENDİ) Gelen linki direkt çalma, kuyruğa ekle!
         this.expressApp.post("/api/playSoundUrl", async (req, res) => {
             if(req.body?.url){
                 await beepboop.addToQueue(req.body.url);
@@ -177,6 +171,37 @@ export default class WebApp {
             beepboop.steamChatAudio.stopSound().catch(console.error);
             res.end();
         });
+
+        // =====================================
+        // NEXT / PREV ROTALARI
+        // =====================================
+        this.expressApp.post("/api/next", async (req, res) => {
+            if (beepboop.musicQueue && beepboop.musicQueue.length > 0) {
+                let finishedTrack = beepboop.musicQueue.shift();
+                beepboop.historyQueue.push(finishedTrack);
+                if (beepboop.historyQueue.length > 50) beepboop.historyQueue.shift();
+                await beepboop.playNextInQueue();
+            } else {
+                beepboop.isPlaying = false;
+                beepboop.steamChatAudio.stopSound().catch(console.error);
+            }
+            res.end();
+        });
+
+        this.expressApp.post("/api/prev", async (req, res) => {
+            if (beepboop.historyQueue && beepboop.historyQueue.length > 0) {
+                let prevTrack = beepboop.historyQueue.pop(); 
+                if (beepboop.musicQueue.length > 0) {
+                    beepboop.musicQueue[0].status = 'waiting';
+                }
+                beepboop.musicQueue.unshift(prevTrack);
+                await beepboop.playNextInQueue();
+            } else if (beepboop.musicQueue && beepboop.musicQueue.length > 0) {
+                await beepboop.playNextInQueue();
+            }
+            res.end();
+        });
+        // =====================================
 
         this.expressApp.post("/api/uploadSound", async (req, res) => {
             try {
@@ -305,11 +330,11 @@ export default class WebApp {
 
     startSteamLoginApi(){
         this.relyingParty = new openid.RelyingParty(
-            this.baseUrl + "api/steam/verify", // Verification URL (yours)
-            this.baseUrl,   // Realm (optional, specifies realm for OpenID authentication)
-            true,       // Use stateless verification
-            true,       // Strict mode
-            []          // List of extensions to enable and include
+            this.baseUrl + "api/steam/verify", 
+            this.baseUrl,   
+            true,       
+            true,       
+            []          
         );
 
         this.expressApp.get("/api/steam/authenticate", (req, res) => {
@@ -329,7 +354,7 @@ export default class WebApp {
                     return;
                 }
                 let uid = await generateUid(18);
-                this.sessions.set(uid, result?.claimedIdentifier?.substring(steamOpenId.length + 4)); // 4 == "/id/".length
+                this.sessions.set(uid, result?.claimedIdentifier?.substring(steamOpenId.length + 4)); 
                 res.write(`<!DOCTYPE HTML><html><head>
                     <script>
                         localStorage.setItem("authId", ${JSON.stringify(uid)});

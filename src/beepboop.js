@@ -24,13 +24,13 @@ const startMessage =
     //@ts-ignore
     .replaceAll("V", "\\");
 
-
 export default class BeepBoop {
     constructor(){
-        // --- YENİ EKLENEN KUYRUK DEĞİŞKENLERİ ---
+        // --- KUYRUK VE GEÇMİŞ DEĞİŞKENLERİ ---
         this.musicQueue = [];
+        this.historyQueue = []; // Önceki şarkıların tutulacağı hafıza
         this.isPlaying = false;
-        // -----------------------------------------
+        // -------------------------------------
 
         /** @type {Config} */
         this.config = config;
@@ -54,11 +54,9 @@ export default class BeepBoop {
         this.plugins = [];
     }
 
-    // --- YENİ EKLENEN KUYRUK YÖNETİM METOTLARI ---
     async addToQueue(url) {
         let title = "URL Track";
         if (url.includes("youtube.com") || url.includes("youtu.be")) {
-            // Basit bir ID veya isim çekimi (İsteğe bağlı zenginleştirilebilir)
             let videoId = url.split("v=")[1]?.substring(0, 11) || "YouTube Video";
             title = "YouTube: " + videoId;
         }
@@ -88,7 +86,6 @@ export default class BeepBoop {
             this.playNextInQueue();
         }
     }
-    // ---------------------------------------------
 
     async init(){
         console.info(startMessage);
@@ -106,7 +103,6 @@ export default class BeepBoop {
         await this.loadPlugins();
         console.info(`BeepBoop started in ${process.uptime()} seconds.`);
 
-        // On future reloads, reinitialize
         this.chatPage.on("load", async () => {
             if(await this.chatFrame.evaluate(SteamFriendsUiApi.isSteamChat)){
                 setTimeout(() => this.onChatLoaded().catch(console.error), 2000);
@@ -115,16 +111,24 @@ export default class BeepBoop {
     }
 
     async onChatLoaded(){
+        console.info("Steam Chat yükleniyor, arayüzün (g_FriendsUIApp) gelmesi için 10 saniye bekleniyor...");
+        await new Promise(resolve => setTimeout(resolve, 10000));
         console.info("Initializing Steam chat API.");
-        await this.steamChat.init();
-        console.log("Initializing Steam chat audio.");
-        await this.steamChatAudio.init(config.volume);
+        
+        try {
+            await this.steamChat.init();
+            console.log("Initializing Steam chat audio.");
+            await this.steamChatAudio.init(config.volume);
 
-        if(config.steam?.groupName && config.steam?.channelName){
-            await this.steamChat.joinVoiceChannel(config.steam.groupName, config.steam.channelName, true);
-            console.info(`Successully joined voice channel ${config.steam?.channelName} in ${config.steam?.groupName}`);
-        } else
-            console.warn("Missing steam.groupName or steam.channelName, got nowhere to join.");
+            if(config.steam?.groupName && config.steam?.channelName){
+                await this.steamChat.joinVoiceChannel(config.steam.groupName, config.steam.channelName, true);
+                console.info(`Successully joined voice channel ${config.steam?.channelName} in ${config.steam?.groupName}`);
+            } else {
+                console.warn("Missing steam.groupName or steam.channelName, got nowhere to join.");
+            }
+        } catch (error) {
+            console.error("Steam kanala bağlanırken hata oluştu (Arayüz hala yüklenmemiş olabilir):", error);
+        }
     }
 
     async stop(){

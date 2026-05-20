@@ -3,7 +3,7 @@ import { ytHelper } from "../yt-helper.js";
 
 export default class SteamChatAudio {
     /**
-     * * @param {import("../beepboop.js").default} beepBoop
+     * @param {import("../beepboop.js").default} beepBoop
      * @param {string} soundsBaseUrl
      */
     constructor(beepBoop, soundsBaseUrl) {
@@ -19,27 +19,25 @@ export default class SteamChatAudio {
     }
 
     async init(volume = 0.3) {
-        let g_FriendsUIApp; // Fake for TS check
+        let g_FriendsUIApp; 
         
-        // --- YENİ EKLENEN KISIM: KÖPRÜ ---
-        // Şarkı bittiğinde tarayıcının Node.js'i uyarabilmesi için bir fonksiyon açıyoruz
         try {
             await this.bb.chatPage.exposeFunction('onAudioEnded', () => {
                 console.log("Track ended. Playing next in queue...");
                 if (this.bb.musicQueue && this.bb.musicQueue.length > 0) {
-                    this.bb.musicQueue.shift(); // Çalanı listeden at
-                    this.bb.playNextInQueue();  // Sıradakini başlat
+                    let finishedTrack = this.bb.musicQueue.shift(); 
+                    this.bb.historyQueue.push(finishedTrack);
+                    
+                    if (this.bb.historyQueue.length > 50) this.bb.historyQueue.shift();
+
+                    this.bb.playNextInQueue();  
                 } else {
-                    this.bb.isPlaying = false; // Liste boşaldı
+                    this.bb.isPlaying = false; 
                 }
             });
-        } catch (e) {
-            // Sayfa yenilendiğinde fonksiyon zaten varsa hata vermesini önler
-        }
-        // ---------------------------------
+        } catch (e) { }
 
         await this.frame.evaluate((volume_) => {
-            // Voice settings
             g_FriendsUIApp.VoiceStore.SetUseEchoCancellation(false);
             g_FriendsUIApp.VoiceStore.SetUseAutoGainControl(true);
             g_FriendsUIApp.VoiceStore.SetUseNoiseCancellation(false);
@@ -48,14 +46,20 @@ export default class SteamChatAudio {
             // Fake microphone setup
             let fakeAudio = {
                 audioContext: new AudioContext(),
-                audio: new Audio()
+                audio: new Audio(),
+                currentSource: null // YENİ EKLENDİ: Eski sesi hafızada tutmak için
             };
             fakeAudio.gainNode = fakeAudio.audioContext.createGain();
             fakeAudio.gainNode.gain.value = volume_;
 
             fakeAudio.addStream = function(stream){
-                let audioSource = fakeAudio.audioContext.createMediaStreamSource(stream);
-                audioSource.connect(fakeAudio.gainNode);
+                // YENİ EKLENDİ: Eğer mikrofonda takılı eski bir şarkı varsa önce onu sök (disconnect)
+                if (fakeAudio.currentSource) {
+                    fakeAudio.currentSource.disconnect();
+                }
+                
+                fakeAudio.currentSource = fakeAudio.audioContext.createMediaStreamSource(stream);
+                fakeAudio.currentSource.connect(fakeAudio.gainNode);
             }
 
             fakeAudio.getUserMedia = function(_options, success){
@@ -64,24 +68,20 @@ export default class SteamChatAudio {
                 success(mixed.stream);
             }
 
-            // Audio source
             fakeAudio.audio = new Audio();
             fakeAudio.audio.controls = true;
             fakeAudio.audio.crossOrigin = "annonymous";
             
-            // --- YENİ EKLENEN TETİKLEYİCİ ---
             fakeAudio.audio.onended = () => {
                 if (window.onAudioEnded) window.onAudioEnded();
             };
-            // --------------------------------
 
             fakeAudio.audio.oncanplay = ()=>{
-                // @ts-ignore captureSteam does not exist on HTMLAudioElement?? Yes, it does, shut up.
+                //@ts-ignore
                 fakeAudio.addStream(fakeAudio.audio.captureStream());
                 fakeAudio.audio.play();
             };
 
-            // Override getUserMedia API 
             //@ts-ignore
             navigator.getUserMedia = fakeAudio.getUserMedia;
             //@ts-ignore
@@ -97,7 +97,7 @@ export default class SteamChatAudio {
     }
     
     /**
-     * * @param {string} url 
+     * @param {string} url 
      * @param {boolean} checkYt 
      */
     async playSoundUrl(url, checkYt = true){
@@ -105,15 +105,13 @@ export default class SteamChatAudio {
         let yt = checkYt && ytHelper.validateUrl(url);
 
         if(yt) {
-            // YTDL endpoint
             url = `${this.soundsBaseUrl}/api/ytdl/${encodeURIComponent(url)}`;
         } else if(!url.startsWith(this.soundsBaseUrl)) {
-            // Proxy
             url = `${this.soundsBaseUrl}/api/proxy/${encodeURIComponent(url)}`;
         }
 
         /** @type {{audioContext: AudioContext; audio: HTMLAudioElement;}} */
-        let fakeAudio; // Fake for TS check
+        let fakeAudio;
         try {
             await this.frame.evaluate(async (url) => {
                 await /** @type {Promise<void>} */(new Promise((resolve, reject) => {
@@ -125,7 +123,7 @@ export default class SteamChatAudio {
                         } catch(exception){
                             return reject(new Error(`${exception.message} Code ${fakeAudio.audio.error.code}: ${fakeAudio.audio.error.message}`));
                         }
-                        reject(new Error(`Error while loading audio from URL. Code ${fakeAudio.audio.error.code}: ${fakeAudio.audio.error.message}`));
+                        reject(new Error("Error while loading audio from URL."));
                     };
                     let canplayHandler = () => {
                         fakeAudio.audio.removeEventListener("error", errorHandler);
@@ -149,12 +147,12 @@ export default class SteamChatAudio {
     }
 
     resumeSound(){
-        //@ts-ignore fakeAudio
+        //@ts-ignore
         return this.frame.evaluate(() => fakeAudio.audio.play());
     }
 
     stopSound(){
-        //@ts-ignore fakeAudio
+        //@ts-ignore
         return this.frame.evaluate(() => fakeAudio.audio.pause());
     }
 
