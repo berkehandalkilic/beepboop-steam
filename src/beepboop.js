@@ -120,6 +120,24 @@ export default class BeepBoop {
         await this.loadPlugins();
         console.info(`BeepBoop started in ${process.uptime()} seconds.`);
 
+        // 👇👇👇 ZARİF KAPANIŞ (GRACEFUL SHUTDOWN) 👇👇👇
+        const exitHandler = async (signal) => {
+            console.log(`\n[${signal}] Kapatma sinyali alındı! Chrome ve Steam bağlantıları güvenli bir şekilde sonlandırılıyor...`);
+            try {
+                this.isPlaying = false; // Kuyruk sistemini durdurur
+                await this.stop(); // Chrome'u ve sekmeleri resmi olarak kapatır
+                console.log("Kapanış işlemleri tamamlandı. Hesaptan çıkıldı, hoşça kal!");
+                process.exit(0);
+            } catch (e) {
+                console.error("Kapatılırken hata oluştu:", e);
+                process.exit(1);
+            }
+        };
+
+        process.on('SIGINT', () => exitHandler('SIGINT'));   // Terminalde Ctrl+C yapıldığında
+        process.on('SIGTERM', () => exitHandler('SIGTERM')); // docker-compose down yapıldığında
+        // 👆👆👆 ZARİF KAPANIŞ BİTTİ 👆👆👆
+
         this.chatPage.on("load", async () => {
             if(await this.chatFrame.evaluate(SteamFriendsUiApi.isSteamChat)){
                 setTimeout(() => this.onChatLoaded().catch(console.error), 2000);
