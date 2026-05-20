@@ -21,115 +21,156 @@ const startMessage =
 | _ V/ -_) -_) '_ V _ V/ _ V/ _ V '_ V
 |___/V___V___| .__/___/V___/V___/ .__/
              |_| v${paddedVer } |_|  `
-	//@ts-ignore
-	.replaceAll("V", "\\");
+    //@ts-ignore
+    .replaceAll("V", "\\");
 
 
 export default class BeepBoop {
-	constructor(){
-		/** @type {Config} */
-		this.config = config;
-		this.webApp = new WebApp(config.baseUrl, config.port);
-		if(config.db?.connection){
-			this.db = pgPromise()(config.db.connection);
-			this.soundsDbGw = new SoundsDbGw(this.db);
-		}
-		switch(config.mode){
-			case "client":
-				this.steamClient = new SteamClientApi();
-				break;
-			case "web":
-				this.steamBrowser = new SteamBrowserApi(this);
-				break;
-			default:
-				throw new Error("No mode selected.");
-		}
-		this.steamChat = new SteamChatApi(this);
-		this.steamChatAudio = new SteamChatAudio(this, "http://localhost:" + config.port);
-		this.plugins = [];
-	}
+    constructor(){
+        // --- YENİ EKLENEN KUYRUK DEĞİŞKENLERİ ---
+        this.musicQueue = [];
+        this.isPlaying = false;
+        // -----------------------------------------
 
-	async init(){
-		console.info(startMessage);
-		await this.soundsDbGw?.init();
-		setUpPersistence(this.db).catch(console.error);
-		console.info(`Initializing Steam ${config.mode} API.`);
-		await this.steamClient?.init();
-		await this.steamBrowser?.init()
-		
-		await this.onChatLoaded();
+        /** @type {Config} */
+        this.config = config;
+        this.webApp = new WebApp(config.baseUrl, config.port);
+        if(config.db?.connection){
+            this.db = pgPromise()(config.db.connection);
+            this.soundsDbGw = new SoundsDbGw(this.db);
+        }
+        switch(config.mode){
+            case "client":
+                this.steamClient = new SteamClientApi();
+                break;
+            case "web":
+                this.steamBrowser = new SteamBrowserApi(this);
+                break;
+            default:
+                throw new Error("No mode selected.");
+        }
+        this.steamChat = new SteamChatApi(this);
+        this.steamChatAudio = new SteamChatAudio(this, "http://localhost:" + config.port);
+        this.plugins = [];
+    }
 
-		console.info("Initializing REST API.");
-		this.webApp.startRestApi(this);
-		this.webApp.startSteamLoginApi();
-		await this.loadPlugins();
-		console.info(`BeepBoop started in ${process.uptime()} seconds.`);
+    // --- YENİ EKLENEN KUYRUK YÖNETİM METOTLARI ---
+    async addToQueue(url) {
+        let title = "URL Track";
+        if (url.includes("youtube.com") || url.includes("youtu.be")) {
+            // Basit bir ID veya isim çekimi (İsteğe bağlı zenginleştirilebilir)
+            let videoId = url.split("v=")[1]?.substring(0, 11) || "YouTube Video";
+            title = "YouTube: " + videoId;
+        }
 
-		// On future reloads, reinitialize
-		this.chatPage.on("load", async () => {
-			if(await this.chatFrame.evaluate(SteamFriendsUiApi.isSteamChat)){
-				setTimeout(() => this.onChatLoaded().catch(console.error), 2000);
-			}
-		});
-	}
+        this.musicQueue.push({ url: url, title: title, status: 'waiting' });
+        
+        if (!this.isPlaying) {
+            this.playNextInQueue();
+        }
+    }
 
-	async onChatLoaded(){
-		console.info("Initializing Steam chat API.");
-		await this.steamChat.init();
-		console.log("Initializing Steam chat audio.");
-		await this.steamChatAudio.init(config.volume);
+    async playNextInQueue() {
+        if (this.musicQueue.length === 0) {
+            this.isPlaying = false;
+            return;
+        }
 
-		if(config.steam?.groupName && config.steam?.channelName){
-			await this.steamChat.joinVoiceChannel(config.steam.groupName, config.steam.channelName, true);
-			console.info(`Successully joined voice channel ${config.steam?.channelName} in ${config.steam?.groupName}`);
-		} else
-			console.warn("Missing steam.groupName or steam.channelName, got nowhere to join.");
-	}
+        this.isPlaying = true;
+        let nextTrack = this.musicQueue[0];
+        nextTrack.status = 'playing';
 
-	async stop(){
-		await this.steamChat.leaveVoiceChannel();
-		await this.steamBrowser?.browser.close();
-	}
+        try {
+            await this.steamChatAudio.playSoundUrl(nextTrack.url);
+        } catch(e) {
+            console.error("Şarkı çalınamadı, atlanıyor:", e);
+            this.musicQueue.shift();
+            this.playNextInQueue();
+        }
+    }
+    // ---------------------------------------------
 
-	/**
-	 * @returns {import("puppeteer-core/lib/cjs/puppeteer/api/Page.js").Page | import("puppeteer-core/lib/cjs/puppeteer/api/Frame.js").Frame | undefined}
-	 */
-	get chatFrame(){
-		//@ts-ignore my head hurts...
-		return this.steamClient?.getFriendsUiFrame() || this.steamBrowser?.getFriendsUiFrame();
-	}
+    async init(){
+        console.info(startMessage);
+        await this.soundsDbGw?.init();
+        setUpPersistence(this.db).catch(console.error);
+        console.info(`Initializing Steam ${config.mode} API.`);
+        await this.steamClient?.init();
+        await this.steamBrowser?.init()
+        
+        await this.onChatLoaded();
 
-	/**
-	 * @returns {import("puppeteer-core/lib/cjs/puppeteer/api/Page.js").Page | undefined}
-	 */
-	get chatPage(){
-		//@ts-ignore
-		return this.steamClient?.getFriendsUiPage() || this.steamBrowser?.getFriendsUiPage();
-	}
+        console.info("Initializing REST API.");
+        this.webApp.startRestApi(this);
+        this.webApp.startSteamLoginApi();
+        await this.loadPlugins();
+        console.info(`BeepBoop started in ${process.uptime()} seconds.`);
 
-	get chatHandler(){
-		return this.steamChat.chatHandler;
-	}
+        // On future reloads, reinitialize
+        this.chatPage.on("load", async () => {
+            if(await this.chatFrame.evaluate(SteamFriendsUiApi.isSteamChat)){
+                setTimeout(() => this.onChatLoaded().catch(console.error), 2000);
+            }
+        });
+    }
 
-	async loadPlugins(){
-		if(!config.plugins)
-			return;
-		for(let plugin of config.plugins){
-			console.log("Loading \""+plugin+"\" plugin.");
-			try {
-				let pluginClass;
-				if(plugin.startsWith("http:") || plugin.startsWith("https:")){
-					let code = (await utils.request(plugin)).body.toString();
-					pluginClass = requireFromString(code, "./plugins/"+plugin.replace(/[^\w^.]+/g, "_"));
-				} else {
-					pluginClass = await import("./plugins/"+plugin+".js");
-				}
-				if(typeof pluginClass !== "function" && pluginClass.default)
-					pluginClass = pluginClass.default;
-				this.plugins.push(new (pluginClass)(this, await getStorage(plugin)));
-			} catch(error){
-				console.error(error);
-			}
-		}
-	}
+    async onChatLoaded(){
+        console.info("Initializing Steam chat API.");
+        await this.steamChat.init();
+        console.log("Initializing Steam chat audio.");
+        await this.steamChatAudio.init(config.volume);
+
+        if(config.steam?.groupName && config.steam?.channelName){
+            await this.steamChat.joinVoiceChannel(config.steam.groupName, config.steam.channelName, true);
+            console.info(`Successully joined voice channel ${config.steam?.channelName} in ${config.steam?.groupName}`);
+        } else
+            console.warn("Missing steam.groupName or steam.channelName, got nowhere to join.");
+    }
+
+    async stop(){
+        await this.steamChat.leaveVoiceChannel();
+        await this.steamBrowser?.browser.close();
+    }
+
+    /**
+     * @returns {import("puppeteer-core/lib/cjs/puppeteer/api/Page.js").Page | import("puppeteer-core/lib/cjs/puppeteer/api/Frame.js").Frame | undefined}
+     */
+    get chatFrame(){
+        //@ts-ignore my head hurts...
+        return this.steamClient?.getFriendsUiFrame() || this.steamBrowser?.getFriendsUiFrame();
+    }
+
+    /**
+     * @returns {import("puppeteer-core/lib/cjs/puppeteer/api/Page.js").Page | undefined}
+     */
+    get chatPage(){
+        //@ts-ignore
+        return this.steamClient?.getFriendsUiPage() || this.steamBrowser?.getFriendsUiPage();
+    }
+
+    get chatHandler(){
+        return this.steamChat.chatHandler;
+    }
+
+    async loadPlugins(){
+        if(!config.plugins)
+            return;
+        for(let plugin of config.plugins){
+            console.log("Loading \""+plugin+"\" plugin.");
+            try {
+                let pluginClass;
+                if(plugin.startsWith("http:") || plugin.startsWith("https:")){
+                    let code = (await utils.request(plugin)).body.toString();
+                    pluginClass = requireFromString(code, "./plugins/"+plugin.replace(/[^\w^.]+/g, "_"));
+                } else {
+                    pluginClass = await import("./plugins/"+plugin+".js");
+                }
+                if(typeof pluginClass !== "function" && pluginClass.default)
+                    pluginClass = pluginClass.default;
+                this.plugins.push(new (pluginClass)(this, await getStorage(plugin)));
+            } catch(error){
+                console.error(error);
+            }
+        }
+    }
 }

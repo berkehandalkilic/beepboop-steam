@@ -1,317 +1,317 @@
 :root {
-	--bg-color: #090909;
-	--secondary-bg-color: #131313;
-	--txt-color: #d9d9d9;
-	--main-color: #00437d;
-	--shadow-color: #000000;
-	--line-color: #909090;
-	--disabled-color: #2a3d4d;
+    --bg-color: #090909;
+    --secondary-bg-color: #131313;
+    --txt-color: #d9d9d9;
+    --main-color: #00437d;
+    --shadow-color: #000000;
+    --line-color: #909090;
+    --disabled-color: #2a3d4d;
 }
 body {
-	background-color: var(--bg-color);
-	color: var(--txt-color);
-	font-family: sans-serif;
-	margin: 10px;
-	font-size: 16px;
+    background-color: var(--bg-color);
+    color: var(--txt-color);
+    font-family: sans-serif;
+    margin: 10px;
+    font-size: 16px;
 }
 
 .left {
-	float: left;
+    float: left;
 }
 
 .right {
-	float: right;
+    float: right;
 }
 
 .clear {
-	clear: both;
+    clear: both;
 }
 
 .b {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 .i {
-	font-style: italic;
+    font-style: italic;
 }
 
 .u {
-	text-decoration: underline;
+    text-decoration: underline;
 }
 
 .none {
-	display: none;
+    display: none;
 }
 
 a {
-	color: var(--main-color);
+    color: var(--main-color);
 }
 
 hr {
-	border: 0;
-	border-top: 1px;
-	border-style: inset;
-	border-color: var(--main-color);
-	margin-top: 16px;
+    border: 0;
+    border-top: 1px;
+    border-style: inset;
+    border-color: var(--main-color);
+    margin-top: 16px;
 }
 
 nav {
-	background-color: var(--main-color);
-	text-shadow: 1px 1px 1px var(--shadow-color);
-	margin: -10px;
-	margin-bottom: 10px;
-	padding: 0 15px;
-	line-height: 30px
+    background-color: var(--main-color);
+    text-shadow: 1px 1px 1px var(--shadow-color);
+    margin: -10px;
+    margin-bottom: 10px;
+    padding: 0 15px;
+    line-height: 30px
 }
 
 nav a {
-	color: var(--txt-color);
-	text-decoration: none;
-	font-variant: small-caps;
-	padding: 0 5px;
+    color: var(--txt-color);
+    text-decoration: none;
+    font-variant: small-caps;
+    padding: 0 5px;
 }
 
 input[type="text"], input[type="password"], textarea, select {
-	font-size: 16px;
-	font-family: sans-serif;
-	background-color: var(--secondary-bg-color);
-	border: 0;
-	border-left: 1px solid var(--main-color);
-	border-bottom: 1px solid var(--main-color);
-	padding: 5px;
-	margin: 2px;
-	color: var(--txt-color);
-	text-shadow: 1px 1px 1px var(--shadow-color);
-	background:
-		linear-gradient(225deg, transparent 5px, var(--secondary-bg-color) 5px);
+    font-size: 16px;
+    font-family: sans-serif;
+    background-color: var(--secondary-bg-color);
+    border: 0;
+    border-left: 1px solid var(--main-color);
+    border-bottom: 1px solid var(--main-color);
+    padding: 5px;
+    margin: 2px;
+    color: var(--txt-color);
+    text-shadow: 1px 1px 1px var(--shadow-color);
+    background:
+        linear-gradient(225deg, transparent 5px, var(--secondary-bg-color) 5px);
 }
 
 input[type="text"]:disabled, input[type="password"]:disabled, textarea:disabled, select:disabled {
-	border-color: var(--disabled-color);
+    border-color: var(--disabled-color);
 }
 
 select option {
-	background-color: var(--secondary-bg-color);
+    background-color: var(--secondary-bg-color);
 }
 
 input[type="submit"], input[type="button"], button, .button {
-	display: inline-block;
-	font-size: 16px;
-	background-color: var(--main-color);
-	border: 0;
-	color: var(--txt-color);
-	text-shadow: 1px 1px 1px var(--shadow-color);
-	padding: 5px 10px;
-	margin: 2px;
-	background:
-		linear-gradient(45deg, transparent 6px, var(--main-color) 6px),
-		linear-gradient(225deg, transparent 6px, var(--main-color) 6px);
-	background-position: bottom left, bottom right;
-	background-size: 52% 100%;
-	background-repeat: no-repeat;
-	user-select: none;
+    display: inline-block;
+    font-size: 16px;
+    background-color: var(--main-color);
+    border: 0;
+    color: var(--txt-color);
+    text-shadow: 1px 1px 1px var(--shadow-color);
+    padding: 5px 10px;
+    margin: 2px;
+    background:
+        linear-gradient(45deg, transparent 6px, var(--main-color) 6px),
+        linear-gradient(225deg, transparent 6px, var(--main-color) 6px);
+    background-position: bottom left, bottom right;
+    background-size: 52% 100%;
+    background-repeat: no-repeat;
+    user-select: none;
 }
 
 input[type="submit"]:disabled, input[type="button"]:disabled, button:disabled {
-	background-color: var(--disabled-color);
-	background:
-		linear-gradient(45deg, transparent 6px, var(--disabled-color) 6px),
-		linear-gradient(225deg, transparent 6px, var(--disabled-color) 6px);
-	background-position: bottom left, bottom right;
-	background-size: 52% 100%;
-	background-repeat: no-repeat;
+    background-color: var(--disabled-color);
+    background:
+        linear-gradient(45deg, transparent 6px, var(--disabled-color) 6px),
+        linear-gradient(225deg, transparent 6px, var(--disabled-color) 6px);
+    background-position: bottom left, bottom right;
+    background-size: 52% 100%;
+    background-repeat: no-repeat;
 }
 
 input[type="text"]+input[type="submit"] {
-	left: -11px;
+    left: -11px;
 }
 
-/*  RADIO  */
+/* RADIO  */
 .radio input[type="radio"] + label:before {
-	content: '';
-	float: left;
-	border: 1px solid var(--line-color);
-	transform: rotate(45deg);
-	display: block;
-	width: 10px;
-	height: 10px;
-	margin-top: 4px;
-	margin-right: 5px;
+    content: '';
+    float: left;
+    border: 1px solid var(--line-color);
+    transform: rotate(45deg);
+    display: block;
+    width: 10px;
+    height: 10px;
+    margin-top: 4px;
+    margin-right: 5px;
 }
 
 .radio input[type="radio"] + label:hover:before {
-	border-color: var(--main-color);
+    border-color: var(--main-color);
 }
 
 .radio input[type="radio"]:checked + label:before {
-	background-color: var(--main-color);
-	background:
-		linear-gradient(0deg, var(--main-color) 0%, var(--main-color) 100%);
-	background-size: 50% 50%;
-	background-repeat: no-repeat;
-	background-position: center center;
+    background-color: var(--main-color);
+    background:
+        linear-gradient(0deg, var(--main-color) 0%, var(--main-color) 100%);
+    background-size: 50% 50%;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 .radio input[type="radio"] {
-	display: none;
+    display: none;
 }
 
-/*  CHECKBOX  */
+/* CHECKBOX  */
 .check input[type="checkbox"] + label:before {
-	content: '';
-	float: left;
-	border: 1px solid var(--line-color);
-	display: block;
-	width: 12px;
-	height: 12px;
-	margin-top: 4px;
-	margin-right: 5px;
+    content: '';
+    float: left;
+    border: 1px solid var(--line-color);
+    display: block;
+    width: 12px;
+    height: 12px;
+    margin-top: 4px;
+    margin-right: 5px;
 }
 
 .check input[type="checkbox"] + label:hover:before {
-	border-color: var(--main-color);
+    border-color: var(--main-color);
 }
 
 .check input[type="checkbox"]:checked + label:before {
-	background-color: var(--main-color);
-	background:
-		linear-gradient(left, var(--main-color) 0%, var(--main-color) 100%);
-	background-size: 10px 10px;
-	background-repeat: no-repeat;
-	background-position: center center;
+    background-color: var(--main-color);
+    background:
+        linear-gradient(left, var(--main-color) 0%, var(--main-color) 100%);
+    background-size: 10px 10px;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 .check input[type="checkbox"] {
-	display: none;
+    display: none;
 }
 
-/*  TOGGLE  */
+/* TOGGLE  */
 .toggle input[type="checkbox"] + label div {
-	display: inline-block;
-	width: 30px;
-	height: 18px;
-	background-color: var(--main-color);
-	position: relative;
-	left: -60px;
-	top: 2.5px;
-	transition: all 0.2s;
-	background:
-		linear-gradient(45deg, transparent 6px, var(--main-color) 6px),
-		linear-gradient(225deg, transparent 6px, var(--main-color) 6px);
-	background-position: bottom left, bottom right;
-	background-size: 52% 100%;
-	background-repeat: no-repeat;
+    display: inline-block;
+    width: 30px;
+    height: 18px;
+    background-color: var(--main-color);
+    position: relative;
+    left: -60px;
+    top: 2.5px;
+    transition: all 0.2s;
+    background:
+        linear-gradient(45deg, transparent 6px, var(--main-color) 6px),
+        linear-gradient(225deg, transparent 6px, var(--main-color) 6px);
+    background-position: bottom left, bottom right;
+    background-size: 52% 100%;
+    background-repeat: no-repeat;
 }
 
 .toggle input[type="checkbox"]:checked + label div {
-	left: -30px;
-	transition: all 0.2s;
+    left: -30px;
+    transition: all 0.2s;
 }
 
 .toggle input[type="checkbox"] + label mark {
-	color: var(--txt-color);
-	text-shadow: 1px 1px 1px var(--shadow-color);
-	display: inline-block;
-	width: 30px;
-	line-height: 20px;
-	text-align: center;
-	background: none;
+    color: var(--txt-color);
+    text-shadow: 1px 1px 1px var(--shadow-color);
+    display: inline-block;
+    width: 30px;
+    line-height: 20px;
+    text-align: center;
+    background: none;
 }
 
 .toggle input[type="checkbox"] + label span {
-	display: inline-block;
-	width: 60px;
-	background:
-		linear-gradient(45deg, transparent 6px, var(--secondary-bg-color) 6px),
-		linear-gradient(225deg, transparent 6px, var(--secondary-bg-color) 6px);
-	background-position: bottom left, bottom right;
-	background-size: 52% 100%;
-	background-repeat: no-repeat;
+    display: inline-block;
+    width: 60px;
+    background:
+        linear-gradient(45deg, transparent 6px, var(--secondary-bg-color) 6px),
+        linear-gradient(225deg, transparent 6px, var(--secondary-bg-color) 6px);
+    background-position: bottom left, bottom right;
+    background-size: 52% 100%;
+    background-repeat: no-repeat;
 }
 
 .toggle input[type="checkbox"] {
-	display: none;
+    display: none;
 }
 
 fieldset {
-	border: 1px solid var(--main-color);
-	display: inline-block;
-	padding: 5px;
-	margin-right: 12px;
-	margin-top: 22px;
-	position: relative;
-	padding-bottom: 12px;
+    border: 1px solid var(--main-color);
+    display: inline-block;
+    padding: 5px;
+    margin-right: 12px;
+    margin-top: 22px;
+    position: relative;
+    padding-bottom: 12px;
 }
 
 fieldset:after {
-	background: linear-gradient(225deg, var(--bg-color) 6px, var(--main-color) 5px, var(--bg-color) 8px);
-	content: '';
-	width: 10px;
-	height: 10px;
-	display: block;
-	position: absolute;
-	bottom: -1px;
-	left: -1px;
-	clear: both;
+    background: linear-gradient(225deg, var(--bg-color) 6px, var(--main-color) 5px, var(--bg-color) 8px);
+    content: '';
+    width: 10px;
+    height: 10px;
+    display: block;
+    position: absolute;
+    bottom: -1px;
+    left: -1px;
+    clear: both;
 }
 
 legend {
-	background-color: var(--main-color);
-	text-shadow: 1px 1px 1px var(--shadow-color);
-	width: 100%;
-	float: left;
-	position: relative;
-	left: -6px;
-	top: -15px;
-	padding: 6px;
-	background: var(--main-color);
-	background: linear-gradient(225deg, transparent 6px, var(--main-color) 6px);
-	user-select: none;
+    background-color: var(--main-color);
+    text-shadow: 1px 1px 1px var(--shadow-color);
+    width: 100%;
+    float: left;
+    position: relative;
+    left: -6px;
+    top: -15px;
+    padding: 6px;
+    background: var(--main-color);
+    background: linear-gradient(225deg, transparent 6px, var(--main-color) 6px);
+    user-select: none;
 }
 
 meter {
-	width: 100%;
-	-webkit-appearance: none;
-	-moz-appearance: none;
+    width: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 meter::-webkit-meter-optimum-value {
-	background-color: var(--secondary-bg-color);
+    background-color: var(--secondary-bg-color);
 }
 
 meter::-moz-meter-optimum-value {
-	background-color: var(--secondary-bg-color);
+    background-color: var(--secondary-bg-color);
 }
 
 meter::-webkit-meter-bar{
-	background: none;
-	background-color: var(--main-color);
+    background: none;
+    background-color: var(--main-color);
 }
 
 meter::-moz-meter-bar {
-	background: none;
-	background-color: var(--main-color);
+    background: none;
+    background-color: var(--main-color);
 }
 
 .center-screen {
-	position:absolute;
-	top:50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+    position:absolute;
+    top:50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 fieldset.center-screen:after {
-	top: 6.3px;	/* Added 0.3px as workaround when height is odd */
-	right: 6.3px;
+    top: 6.3px; 
+    right: 6.3px;
 }
 
 table {
-	border-collapse: collapse;
+    border-collapse: collapse;
 }
 
 table td, table th {
-	padding: 2px 5px;
-	border: 1px solid var(--main-color);
+    padding: 2px 5px;
+    border: 1px solid var(--main-color);
 }
 
 table th {
@@ -319,27 +319,160 @@ table th {
 }
 
 .tag {
-	display: inline-flex;
-	line-height: 30px;
-	background-color: var(--main-color);
-	border-radius: 15px;
-	padding: 0 12px;
-	margin: 2px;
+    display: inline-flex;
+    line-height: 30px;
+    background-color: var(--main-color);
+    border-radius: 15px;
+    padding: 0 12px;
+    margin: 2px;
 }
 
 .tag button {
-	background: none;
-	padding: 0 8px;
-	margin: 0;
-	margin-right: -12px;
-	font-size: 12px;
+    background: none;
+    padding: 0 8px;
+    margin: 0;
+    margin-right: -12px;
+    font-size: 12px;
 }
 
 .flex {
-	display: flex;
+    display: flex;
 }
 
 #sounds .button {
-	margin: 4px;
-	padding: 10px;
+    margin: 4px;
+    padding: 10px;
+}
+
+/* =========================================
+   MUSIC QUEUE SECTION (Tema Uyumluluğu)
+   ========================================= */
+
+.queue-container {
+    width: 100%;
+    max-width: 600px;
+    margin-top: 25px;
+    padding-bottom: 20px;
+}
+
+.queue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 5px;
+    color: var(--txt-color);
+}
+
+.queue-header .track-count {
+    font-size: 14px;
+    font-style: italic;
+    color: var(--line-color);
+}
+
+.clear-queue-btn {
+    background-color: #5c1616;
+    border: 1px solid #ff4d4d;
+    color: var(--txt-color);
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    background: 
+        linear-gradient(45deg, transparent 4px, #5c1616 4px),
+        linear-gradient(225deg, transparent 4px, #5c1616 4px);
+    background-position: bottom left, bottom right;
+    background-size: 52% 100%;
+    background-repeat: no-repeat;
+    transition: all 0.2s;
+}
+
+.clear-queue-btn:hover {
+    background-color: #ff4d4d;
+    background: 
+        linear-gradient(45deg, transparent 4px, #ff4d4d 4px),
+        linear-gradient(225deg, transparent 4px, #ff4d4d 4px);
+    background-position: bottom left, bottom right;
+    background-size: 52% 100%;
+    background-repeat: no-repeat;
+}
+
+.queue-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid var(--main-color);
+    background-color: var(--secondary-bg-color);
+    background: linear-gradient(225deg, transparent 5px, var(--secondary-bg-color) 5px);
+}
+
+.queue-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--main-color);
+    color: var(--txt-color);
+    transition: background 0.2s;
+}
+
+.queue-item:last-child {
+    border-bottom: none;
+}
+
+.queue-item:hover {
+    background-color: var(--main-color);
+}
+
+.queue-item.playing {
+    background-color: var(--main-color);
+    font-weight: bold;
+    background: 
+        linear-gradient(45deg, transparent 6px, var(--main-color) 6px),
+        linear-gradient(225deg, transparent 6px, var(--main-color) 6px);
+    background-position: bottom left, bottom right;
+    background-size: 52% 100%;
+    background-repeat: no-repeat;
+    text-shadow: 1px 1px 1px var(--shadow-color);
+}
+
+.track-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.track-number {
+    color: var(--line-color);
+    font-size: 14px;
+}
+
+.queue-item.playing .track-number {
+    color: var(--txt-color); 
+}
+
+.track-title {
+    font-size: 16px;
+}
+
+.track-status {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--txt-color);
+    background-color: var(--bg-color);
+    padding: 2px 6px;
+    border: 1px solid var(--main-color);
+}
+
+.queue-list::-webkit-scrollbar {
+    width: 8px;
+}
+.queue-list::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+.queue-list::-webkit-scrollbar-thumb {
+    background-color: var(--main-color);
+    border: 1px solid var(--bg-color);
 }
