@@ -8,7 +8,7 @@ services:
     shm_size: '500mb'
     ports:
       - 127.0.0.1:5900:5900 # VNC LAN only
-      - ${PORT-8080}:8081 # Node web server
+      - 3001:8081 # Node web server
     volumes:
       - ./config.json:/beepboop/config.json:ro
       - ./steam/:/home/beepboop/.steam/:rw
@@ -23,8 +23,10 @@ services:
           memory: 512M
     healthcheck:
       test: "exit 0"
+      
   db:
-    image: postgres:latest
+    image: postgres:16
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=beepboop
       - POSTGRES_PASSWORD=beepboop
@@ -32,4 +34,7 @@ services:
     expose:
       - 5432
     volumes: 
-      - ./db:/var/lib/postgresql/data
+      - postgres_data_v16:/var/lib/postgresql/data
+
+volumes:
+  postgres_data_v16:

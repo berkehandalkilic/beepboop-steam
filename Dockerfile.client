@@ -1,14 +1,25 @@
 FROM dorowu/ubuntu-desktop-lxde-vnc
 
 ENV USER=beepboop
-ENV PASSWORD=beebpoop
+ENV PASSWORD=beepboop
 
-# Chrome repository signature couldn't be verified - ignoring, don't care about it.
+# Chrome repository signature couldn't be verified - ignoring
 RUN rm -f /etc/apt/sources.list.d/google-chrome.list
 RUN dpkg --add-architecture i386
-RUN apt update
-RUN apt install -y --no-install-recommends mesa-utils steam-installer curl
-# Additional packages for pulseaudio: pulseaudio pulseaudio-utils pavucontrol
+
+# Steam ve gerekli kütüphaneleri güncel paket isimleriyle kuruyoruz
+RUN apt update && \
+    apt install -y --no-install-recommends \
+    mesa-utils \
+    steam:i386 \
+    steam-devices \
+    curl \
+    libgl1-mesa-dri:i386 \
+    libgl1-mesa-glx:i386 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Steam'in her zaman bulunabilmesi için symlink oluşturuyoruz
+RUN ln -s /usr/games/steam /usr/bin/steam || true
 
 # Install non archaic NodeJS
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && apt install -y --no-install-recommends nodejs
